@@ -42,3 +42,21 @@ app.post('/generate-text', async(req, res) => {
         res.status(500).json({ error: err.message })
     }
 })
+
+// Generate from image
+app.post('/generate-from-image', upload.single('image'), async(req, res) => {
+    try {
+        const {prompt} = req.body
+        const imageBase64 = req.file.buffer.toString('base64')
+        const resp = await ai.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: [
+                {text: prompt},
+                {inlineData: {mimeType: req.file.mimetype, data: imageBase64}}
+            ]
+        })
+        res.json({ result: extractText(resp) })
+    } catch (err) {
+        res.status(500).json({ error: err.message })
+    }
+})
