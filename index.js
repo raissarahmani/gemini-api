@@ -60,3 +60,39 @@ app.post('/generate-from-image', upload.single('image'), async(req, res) => {
         res.status(500).json({ error: err.message })
     }
 })
+
+// Generate from document
+app.post('/generate-from-document', upload.single('document'), async(req, res) => {
+    try {
+        const {prompt} = req.body
+        const docBase64 = req.file.buffer.toString('base64')
+        const resp = await ai.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: [
+                {text: prompt},
+                {inlineData: {mimeType: req.file.mimetype, data: docBase64}}
+            ]
+        })
+        res.json({ result: extractText(resp) })
+    } catch (err) {
+        res.status(500).json({ error: err.message })
+    }
+})
+
+// Generate from audio
+app.post('/generate-from-audio', upload.single('audio'), async(req, res) => {
+    try {
+        const {prompt} = req.body
+        const audioBase64 = req.file.buffer.toString('base64')
+        const resp = await ai.models.generateContent({
+            model: GEMINI_MODEL,
+            contents: [
+                {text: prompt},
+                {inlineData: {mimeType: req.file.mimetype, data: audioBase64}}
+            ]
+        })
+        res.json({ result: extractText(resp) })
+    } catch (err) {
+        res.status(500).json({ error: err.message })
+    }
+})
